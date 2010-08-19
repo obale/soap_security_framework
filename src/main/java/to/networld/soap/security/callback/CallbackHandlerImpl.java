@@ -30,7 +30,7 @@ public class CallbackHandlerImpl implements CallbackHandler {
         for (int i = 0; i < callbacks.length; i++) {
             if (callbacks[i] instanceof WSPasswordCallback) {
                 WSPasswordCallback pc = (WSPasswordCallback) callbacks[i];
-                if (pc.getIdentifier() == this.username) {
+                if (this.username.equals(pc.getIdentifier())) {
                     pc.setPassword(this.password);
                 }
             } else {

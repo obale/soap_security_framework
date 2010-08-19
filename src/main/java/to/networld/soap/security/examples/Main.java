@@ -20,8 +20,7 @@
 
 package to.networld.soap.security.examples;
 
-import java.io.FileOutputStream;
-import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.xml.namespace.QName;
@@ -30,10 +29,15 @@ import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 
+import org.apache.ws.security.WSDataRef;
 import org.apache.ws.security.WSEncryptionPart;
+import org.apache.ws.security.WSSecurityEngineResult;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import to.networld.soap.security.factories.SOAPSecMessageFactory;
+import to.networld.soap.security.interfaces.ISecSOAPMessage;
 import to.networld.soap.security.keystores.JKSKeyStore;
+import to.networld.soap.security.security.SOAPSecMessageFactory;
 
 /**
  * @author Alex Oberhauser
@@ -42,9 +46,36 @@ public class Main {
 	
 	private static void addContentToSOAPMessage(SOAPMessage _message) throws SOAPException {
 		SOAPBody body = _message.getSOAPBody();
-		SOAPElement element = body.addChildElement(new QName("ownElement"));
-		element.addTextNode("Just a little bit of text for testing purpose.");
+		SOAPElement secElement = body.addChildElement(new QName("secureSubTree"));
+		SOAPElement element = secElement.addChildElement(new QName("ownElement"));
+		element.addTextNode("This is a very secret message and should be encrypted ;)");
 		_message.saveChanges();
+	}
+	
+	private static void printDecryptedText(Vector<?> _secVector) {
+		for ( Object entry : _secVector ) {
+			if ( entry instanceof WSSecurityEngineResult ) {
+				try {
+					WSSecurityEngineResult secEntry = (WSSecurityEngineResult)entry;
+					ArrayList<?> arrayList = (ArrayList<?>)secEntry.get(WSSecurityEngineResult.TAG_DATA_REF_URIS);
+					for ( Object obj : arrayList ) {
+						WSDataRef data = (WSDataRef) obj;
+						NodeList nodeList = data.getProtectedElement().getChildNodes();
+						System.out.println(data.getName());
+						for ( int count=0; count < nodeList.getLength(); count++ ) { 
+							Node node = nodeList.item(count);
+							System.out.print(node.getNodeName() + ": ");
+							System.out.println(node.getTextContent());
+						}
+						System.out.println("---");
+					}
+				} catch (Exception e)  {
+					System.out.println(e.getLocalizedMessage());
+				}
+			} else {
+				System.out.println(entry.getClass());
+			}
+		}
 	}
 
 	/**
@@ -55,22 +86,21 @@ public class Main {
 		final String pwd = "v3ryS3cr3t";
 		final String keystoreFile = Main.class.getResource("/keystores/keystore.jks").getFile();
 		final String alias = "johndoe";
-		final String pkcs12File = Main.class.getResource("/keystores/johndoe.p12").getFile();
+		final String pkcs12FileJohn = Main.class.getResource("/keystores/johndoe.p12").getFile();
+		final String pkcs12FileRoot = Main.class.getResource("/keystores/rootca.p12").getFile();
 		
 		JKSKeyStore keyHandler = new JKSKeyStore(keystoreFile, pwd);
-		X509Certificate certificate = keyHandler.getX509Certificate(alias);
 		
-		SOAPMessage message = SOAPSecMessageFactory.newInstance(certificate.getPublicKey(), 15);
+		ISecSOAPMessage message = SOAPSecMessageFactory.newInstance(15);
 		
 		/*
 		 * Add some content. 
 		 */
-		addContentToSOAPMessage(message);
+		addContentToSOAPMessage(message.getSOAPMessage());
 		
 		System.out.println("[*] newInstance(..) SOAP Message:");
-		message.writeTo(System.out);
+		message.printSOAPMessage(System.out);
 		System.out.println("\n");
-		
 		
         Vector<WSEncryptionPart> parts = new Vector<WSEncryptionPart>();
         WSEncryptionPart part = new WSEncryptionPart(
@@ -78,25 +108,27 @@ public class Main {
                 "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
                 "Header");
         parts.add(part);
-        part = new WSEncryptionPart(
-                "Body",
-                "http://schemas.xmlsoap.org/soap/envelope/",
+        WSEncryptionPart part1 = new WSEncryptionPart(
+                "secureSubTree",
+                "",
                 "");
-        parts.add(part);
+        parts.add(part1);
 		
-        SOAPSecMessageFactory.signSOAPMessage(message, parts, 
-        		pkcs12File,
-        		"johndoe", "johndoe");
+        message.signSOAPMessage(parts, 
+        		pkcs12FileRoot,
+        		"rootca", "rootca");
         
-//        SOAPSecMessageFactory.encryptSOAPMessage(message, parts, keyHandler.getKeyStore(), "rootca");
+        message.encryptSOAPMessage(parts, keyHandler.getKeyStore(), "johndoe");
         
-        SOAPSecMessageFactory.checkSecurityConstraints(message,
-        		pkcs12File,
-        		"johndoe", "johndoe");
+        System.out.println("[*] Secure SOAP Message:");
+		message.printSOAPMessage(System.out);
+		System.out.println("\n");
         
-        FileOutputStream fd = new FileOutputStream("/tmp/raw_enc_soap.xml");
-		message.writeTo(fd);
-		System.out.println();
+		System.out.println("[*] Security Result Vector returned by checkSecurityConstraints(..):");
+		Vector<?> secVector = message.checkSecurityConstraints(pkcs12FileJohn, alias, "johndoe", keyHandler.getKeyStore());
+		printDecryptedText(secVector);
+		
+		message.printSOAPMessage(System.out);
 	}
 
 }

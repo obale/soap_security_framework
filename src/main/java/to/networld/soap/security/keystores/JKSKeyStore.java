@@ -37,7 +37,7 @@ public class JKSKeyStore {
 	private final String keystoreFile;
 	private final KeyStore keystore;
 	
-	public JKSKeyStore(String _keystoreFile, String _password) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException {
+	public JKSKeyStore(String _keystoreFile, String _password) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException  {
 		this.keystoreFile = _keystoreFile;
 		this.keystore = KeyStore.getInstance("JKS");
 		this.keystore.load(new FileInputStream(this.keystoreFile), _password.toCharArray());
@@ -48,14 +48,11 @@ public class JKSKeyStore {
 	 * 
 	 * @param _alias The name of the certificate.
 	 * @return The X.509 certificate.
-	 * @throws KeyStoreException
-	 * @throws NoSuchAlgorithmException
-	 * @throws CertificateException
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws UnrecoverableEntryException
+	 * @throws KeyStoreException 
+	 * @throws UnrecoverableEntryException 
+	 * @throws NoSuchAlgorithmException 
 	 */
-	public X509Certificate getX509Certificate(String _alias) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, UnrecoverableEntryException {
+	public X509Certificate getX509Certificate(String _alias) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException  {
         KeyStore.TrustedCertificateEntry keyEntry = (KeyStore.TrustedCertificateEntry) this.keystore.getEntry(_alias, null);
         return (X509Certificate) keyEntry.getTrustedCertificate();
 	}

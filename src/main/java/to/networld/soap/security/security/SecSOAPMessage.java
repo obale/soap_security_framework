@@ -41,7 +41,7 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#checkSecurityConstraints(javax.xml.soap.SOAPMessage, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Vector<?> checkSecurityConstraints(String _pkcs12File, String _alias, String _password, KeyStore _keystore) 
+	public Vector<?> checkSecurityConstraints(String _pkcs12File, String _pkcs12Alias, String _pkcs12Password, KeyStore _keystore) 
 			throws SOAPException, CredentialException, IOException {
 		Document doc = this.message.getSOAPPart().getEnvelope().getOwnerDocument();
 		
@@ -51,11 +51,11 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 		Properties prop = new Properties();
 		prop.put("org.apache.ws.security.crypto.merlin.file", _pkcs12File);
 		prop.put("org.apache.ws.security.crypto.merlin.keystore.type", "PKCS12");
-		prop.put("org.apache.ws.security.crypto.merlin.keystore.password", _password);
+		prop.put("org.apache.ws.security.crypto.merlin.keystore.password", _pkcs12Password);
 	    Merlin decCrypto = new Merlin(prop);
 	    
 	    CallbackHandlerImpl cb = new CallbackHandlerImpl();
-	    cb.setLoginCredentials(_alias, _password);
+	    cb.setLoginCredentials(_pkcs12Alias, _pkcs12Password);
 	    
 	    return secEngine.processSecurityHeader(doc, null, cb, sigCrypto, decCrypto);
 	}
@@ -131,5 +131,4 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	public void printSOAPMessage(OutputStream _out) throws SOAPException, IOException {
 		this.message.writeTo(_out);
 	}
-
 }

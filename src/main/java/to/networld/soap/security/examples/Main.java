@@ -20,11 +20,14 @@
 
 package to.networld.soap.security.examples;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPConnection;
+import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -83,15 +86,16 @@ public class Main {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		final String pwd = "v3ryS3cr3t";
 		final String keystoreFile = Main.class.getResource("/keystores/keystore.jks").getFile();
 		final String alias = "johndoe";
+		final String pwd = "v3ryS3cr3t";
+		
 		final String pkcs12FileJohn = Main.class.getResource("/keystores/johndoe.p12").getFile();
 		final String pkcs12FileRoot = Main.class.getResource("/keystores/rootca.p12").getFile();
 		
 		JKSKeyStore keyHandler = new JKSKeyStore(keystoreFile, pwd);
 		
-		ISecSOAPMessage message = SOAPSecMessageFactory.newInstance(15);
+		ISecSOAPMessage message = SOAPSecMessageFactory.newInstance(0);
 		
 		/*
 		 * Add some content. 
@@ -123,6 +127,13 @@ public class Main {
         System.out.println("[*] Secure SOAP Message:");
 		message.printSOAPMessage(System.out);
 		System.out.println("\n");
+		
+//		SOAPConnectionFactory conFactory = SOAPConnectionFactory.newInstance();
+//		SOAPConnection con = conFactory.createConnection();
+//
+//		SOAPMessage response = con.call(message.getSOAPMessage(), new URL("http://127.0.0.1:2121"));
+//		System.out.println(response);
+//		con.close();
         
 		System.out.println("[*] Security Result Vector returned by checkSecurityConstraints(..):");
 		Vector<?> secVector = message.checkSecurityConstraints(pkcs12FileJohn, alias, "johndoe", keyHandler.getKeyStore());

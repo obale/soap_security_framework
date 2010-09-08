@@ -50,7 +50,7 @@ public abstract class SOAPSecMessageFactory {
 	/**
 	 * Creates a SOAP message with basic security constraints.
 	 * 
-	 * @param _certificate The X.509 certificate that is used for authentication.
+	 * @param _expiresInMinutes The expire time in minutes from the current data. If 0 or negative than ignored.
 	 * @return The generated SOAP message.
 	 * @throws SOAPException
 	 * @throws InvalidAlgorithmParameterException 
@@ -70,7 +70,7 @@ public abstract class SOAPSecMessageFactory {
         soapEnvelope.addNamespaceDeclaration("wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
         soapEnvelope.addNamespaceDeclaration("SOAP-SEC", "http://schemas.xmlsoap.org/soap/security/2000-12");
         
-        soapMessage.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true"); 
+        soapMessage.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true");
         
         /*
          * Header Part
@@ -82,10 +82,11 @@ public abstract class SOAPSecMessageFactory {
         SOAPElement timestampElement = secElement.addChildElement(soapEnvelope.createQName("Timestamp", "wsu"));
         timestampElement.addAttribute(soapEnvelope.createQName("Id", "wsu"), UUID.randomUUID().toString());
         
-        Calendar currentDate = Calendar.getInstance();
-        timestampElement.addChildElement(soapEnvelope.createQName("Created", "wsu")).addTextNode(DateHandler.getDateString(currentDate, 0));
-        timestampElement.addChildElement(soapEnvelope.createQName("Expires", "wsu")).addTextNode(DateHandler.getDateString(currentDate, _expiresInMinutes));
-        timestampElement.addAttribute(soapEnvelope.createQName("id", "SOAP-SEC"), "Timestamp");
+       Calendar currentDate = Calendar.getInstance();
+       timestampElement.addChildElement(soapEnvelope.createQName("Created", "wsu")).addTextNode(DateHandler.getDateString(currentDate, 0));
+       if ( _expiresInMinutes > 0 )
+    	   timestampElement.addChildElement(soapEnvelope.createQName("Expires", "wsu")).addTextNode(DateHandler.getDateString(currentDate, _expiresInMinutes));
+       timestampElement.addAttribute(soapEnvelope.createQName("id", "SOAP-SEC"), "Timestamp");
         
         /*
          * Body Part

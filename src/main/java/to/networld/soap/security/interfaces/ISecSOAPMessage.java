@@ -47,11 +47,11 @@ public interface ISecSOAPMessage {
 	/**
 	 * Write the message to the given output stream.
 	 * 
-	 * @param os The output stream where to write the message.
+	 * @param _out The output stream where to write the message.
 	 * @throws SOAPException
 	 * @throws IOException
 	 */
-	public void printSOAPMessage(OutputStream out)
+	public void printSOAPMessage(OutputStream _out)
 		throws SOAPException, IOException;
 	
 	/**
@@ -82,10 +82,8 @@ public interface ISecSOAPMessage {
 	/**
 	 * Checks the security constraints. First decrypt (TODO), than signature check.
 	 * 
-	 * @param _pkcs12File The file path to a p12 of the agent.
-	 * @param _alias The alias of the agent.
-	 * @param _password The password to be able to access the private key.
-	 * @return The 
+	 * @param _credential Credential information of the client.
+	 * @return A Vector with all security objects.
 	 * @throws SOAPException 
 	 * @throws IOException 
 	 * @throws CredentialException 

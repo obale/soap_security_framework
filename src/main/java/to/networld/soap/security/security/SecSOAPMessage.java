@@ -58,7 +58,7 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	}
 
 	/**
-	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#checkSecurityConstraints(javax.xml.soap.SOAPMessage, java.lang.String, java.lang.String, java.lang.String)
+	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#checkSecurityConstraints(to.networld.soap.security.interfaces.ICredential)
 	 */
 	@Override
 	public Vector<?> checkSecurityConstraints(ICredential _credential) 
@@ -81,7 +81,7 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	}
 
 	/**
-	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#encryptSOAPMessage(javax.xml.soap.SOAPMessage, java.util.Vector, java.security.KeyStore, java.lang.String)
+	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#encryptSOAPMessage(java.util.Vector, to.networld.soap.security.interfaces.ICredential, java.lang.String)
 	 */
 	@Override
 	public void encryptSOAPMessage(Vector<WSEncryptionPart> _encryptionParts, ICredential _credential,
@@ -107,7 +107,7 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	}
 
 	/**
-	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#signSOAPMessage(javax.xml.soap.SOAPMessage, java.util.Vector, java.lang.String, java.lang.String, java.lang.String)
+	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#signSOAPMessage(java.util.Vector, to.networld.soap.security.interfaces.ICredential)
 	 */
 	@Override
 	public void signSOAPMessage(Vector<WSEncryptionPart> _signingParts, ICredential _credentials) throws SOAPException, CredentialException, IOException {
@@ -142,9 +142,7 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	public SOAPMessage getSOAPMessage() { return this.message; }
 
 	/**
-	 * @throws IOException 
-	 * @throws SOAPException 
-	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#printSOAPMessage(java.io.InputStream)
+	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#printSOAPMessage(java.io.OutputStream)
 	 */
 	@Override
 	public void printSOAPMessage(OutputStream _out) throws SOAPException, IOException {

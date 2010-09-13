@@ -47,6 +47,10 @@ import to.networld.soap.security.interfaces.ISecSOAPMessage;
  */
 public abstract class SOAPSecMessageFactory {
 	
+	public static ISecSOAPMessage newInstance(SOAPMessage _message) {
+		return new SecSOAPMessage(_message);
+	}
+	
 	/**
 	 * Creates a SOAP message with basic security constraints.
 	 * 

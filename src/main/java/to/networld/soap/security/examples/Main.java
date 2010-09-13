@@ -110,7 +110,7 @@ public class Main {
         WSEncryptionPart part = new WSEncryptionPart(
                 "Timestamp",
                 "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
-                "Header");
+                "");
         parts.add(part);
         WSEncryptionPart part1 = new WSEncryptionPart(
                 "secureSubTree",

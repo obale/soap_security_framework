@@ -38,8 +38,9 @@ import org.apache.ws.security.WSSecurityEngineResult;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import to.networld.soap.security.common.Credential;
+import to.networld.soap.security.interfaces.ICredential;
 import to.networld.soap.security.interfaces.ISecSOAPMessage;
-import to.networld.soap.security.keystores.JKSKeyStore;
 import to.networld.soap.security.security.SOAPSecMessageFactory;
 
 /**
@@ -87,13 +88,12 @@ public class Main {
 	 */
 	public static void main(String[] args) throws Exception {
 		final String keystoreFile = Main.class.getResource("/keystores/keystore.jks").getFile();
-		final String alias = "johndoe";
 		final String pwd = "v3ryS3cr3t";
-		
 		final String pkcs12FileJohn = Main.class.getResource("/keystores/johndoe.p12").getFile();
 		final String pkcs12FileRoot = Main.class.getResource("/keystores/rootca.p12").getFile();
 		
-		JKSKeyStore keyHandler = new JKSKeyStore(keystoreFile, pwd);
+		ICredential johnCredential = new Credential(pkcs12FileJohn, "johndoe", "johndoe", keystoreFile, pwd);
+		ICredential rootCredential = new Credential(pkcs12FileRoot, "rootca", "rootca", keystoreFile, pwd);
 		
 		ISecSOAPMessage message = SOAPSecMessageFactory.newInstance(0);
 		
@@ -118,11 +118,9 @@ public class Main {
                 "");
         parts.add(part1);
 		
-        message.signSOAPMessage(parts, 
-        		pkcs12FileRoot,
-        		"rootca", "rootca");
-        
-        message.encryptSOAPMessage(parts, keyHandler.getKeyStore(), "johndoe");
+        message.signSOAPMessage(parts, rootCredential); 
+        		
+        message.encryptSOAPMessage(parts, rootCredential, "johndoe");
         
         System.out.println("[*] Secure SOAP Message:");
 		message.printSOAPMessage(System.out);
@@ -136,7 +134,7 @@ public class Main {
 //		con.close();
         
 		System.out.println("[*] Security Result Vector returned by checkSecurityConstraints(..):");
-		Vector<?> secVector = message.checkSecurityConstraints(pkcs12FileJohn, alias, "johndoe", keyHandler.getKeyStore());
+		Vector<?> secVector = message.checkSecurityConstraints(johnCredential);
 		printDecryptedText(secVector);
 		
 		message.printSOAPMessage(System.out);

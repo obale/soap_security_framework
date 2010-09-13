@@ -22,7 +22,6 @@ package to.networld.soap.security.interfaces;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.KeyStore;
 import java.util.Vector;
 
 import javax.xml.soap.SOAPException;
@@ -59,27 +58,25 @@ public interface ISecSOAPMessage {
 	 * Method for the encryption of a SOAP message.
 	 * 
 	 * @param _encryptionParts The parts of the message that should be encrypted.
-	 * @param _keystore A JKS Keystore that includes the public key that is needed for the encryption.
+	 * @param _credential Credentail that includes a JKS Keystore that includes the public key that is needed for the encryption.
 	 * @param _alias The alias of the receiver.
 	 * @throws SOAPException
 	 * @throws CredentialException
 	 * @throws IOException
 	 */
-	public void encryptSOAPMessage(Vector<WSEncryptionPart> _encryptionParts, KeyStore _keystore, String _alias) 
+	public void encryptSOAPMessage(Vector<WSEncryptionPart> _encryptionParts, ICredential _credential, String _alias) 
 		throws SOAPException, CredentialException, IOException;
 		
 	/**
 	 * Method for the signing of a SOAP message.
 	 * 
 	 * @param _signingParts The parts of the message that should be signed.
-	 * @param _pkcs12File The file path to a p12 of the agent that signs the message.
-	 * @param _alias The alias of the agent.
-	 * @param _password The password to be able to access the private key.
+	 * @param _credential The credential of the current user.
 	 * @throws SOAPException 
 	 * @throws IOException 
 	 * @throws CredentialException 
 	 */
-	public void signSOAPMessage(Vector<WSEncryptionPart> _signingParts, String _pkcs12File, String _alias, String _password) 
+	public void signSOAPMessage(Vector<WSEncryptionPart> _signingParts, ICredential _credential) 
 		throws SOAPException, CredentialException, IOException;
 	
 	/**
@@ -93,6 +90,6 @@ public interface ISecSOAPMessage {
 	 * @throws IOException 
 	 * @throws CredentialException 
 	 */
-	public Vector<?> checkSecurityConstraints(String _pkcs12File, String _alias, String _password, KeyStore _keystore)
+	public Vector<?> checkSecurityConstraints(ICredential _credential)
 		throws SOAPException, CredentialException, IOException;
 }

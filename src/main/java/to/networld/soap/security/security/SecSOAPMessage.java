@@ -22,7 +22,6 @@ package to.networld.soap.security.security;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.KeyStore;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -42,6 +41,7 @@ import org.apache.ws.security.message.WSSecSignature;
 import org.w3c.dom.Document;
 
 import to.networld.soap.security.callback.CallbackHandlerImpl;
+import to.networld.soap.security.interfaces.ICredential;
 import to.networld.soap.security.interfaces.ISecSOAPMessage;
 
 /**
@@ -61,21 +61,21 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#checkSecurityConstraints(javax.xml.soap.SOAPMessage, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Vector<?> checkSecurityConstraints(String _pkcs12File, String _pkcs12Alias, String _pkcs12Password, KeyStore _keystore) 
+	public Vector<?> checkSecurityConstraints(ICredential _credential) 
 			throws SOAPException, CredentialException, IOException {
 		Document doc = this.message.getSOAPPart().getEnvelope().getOwnerDocument();
 		
 		Merlin sigCrypto = new Merlin(new Properties());
-		sigCrypto.setKeyStore(_keystore);
+		sigCrypto.setKeyStore(_credential.getPublicKeystore());
 		
 		Properties prop = new Properties();
-		prop.put("org.apache.ws.security.crypto.merlin.file", _pkcs12File);
+		prop.put("org.apache.ws.security.crypto.merlin.file", _credential.getPKCS12File());
 		prop.put("org.apache.ws.security.crypto.merlin.keystore.type", "PKCS12");
-		prop.put("org.apache.ws.security.crypto.merlin.keystore.password", _pkcs12Password);
+		prop.put("org.apache.ws.security.crypto.merlin.keystore.password", _credential.getPKCS12Password());
 	    Merlin decCrypto = new Merlin(prop);
 	    
 	    CallbackHandlerImpl cb = new CallbackHandlerImpl();
-	    cb.setLoginCredentials(_pkcs12Alias, _pkcs12Password);
+	    cb.setLoginCredentials(_credential.getPKCS12Alias(), _credential.getPKCS12Password());
 	    
 	    return secEngine.processSecurityHeader(doc, null, cb, sigCrypto, decCrypto);
 	}
@@ -84,12 +84,12 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#encryptSOAPMessage(javax.xml.soap.SOAPMessage, java.util.Vector, java.security.KeyStore, java.lang.String)
 	 */
 	@Override
-	public void encryptSOAPMessage(Vector<WSEncryptionPart> _encryptionParts, KeyStore _keystore,
+	public void encryptSOAPMessage(Vector<WSEncryptionPart> _encryptionParts, ICredential _credential,
 			String _alias) throws SOAPException, CredentialException, IOException {
 		SOAPEnvelope soapEnvelope = this.message.getSOAPPart().getEnvelope();
 		
 	    Merlin crypto = new Merlin(new Properties());
-	    crypto.setKeyStore(_keystore);
+	    crypto.setKeyStore(_credential.getPublicKeystore());
 	    
 	    WSSecEncrypt encrypt = new WSSecEncrypt();
 	    encrypt.setEncKeyValueType(WSConstants.AES_256);
@@ -110,19 +110,18 @@ public class SecSOAPMessage implements ISecSOAPMessage {
 	 * @see to.networld.soap.security.interfaces.ISecSOAPMessage#signSOAPMessage(javax.xml.soap.SOAPMessage, java.util.Vector, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void signSOAPMessage(Vector<WSEncryptionPart> _signingParts, String _pkcs12File, String _alias, 
-			String _password) throws SOAPException, CredentialException, IOException {
+	public void signSOAPMessage(Vector<WSEncryptionPart> _signingParts, ICredential _credentials) throws SOAPException, CredentialException, IOException {
 		SOAPEnvelope soapEnvelope = this.message.getSOAPPart().getEnvelope();
 
 		Properties prop = new Properties();
-		prop.put("org.apache.ws.security.crypto.merlin.file", _pkcs12File);
+		prop.put("org.apache.ws.security.crypto.merlin.file", _credentials.getPKCS12File());
 		prop.put("org.apache.ws.security.crypto.merlin.keystore.type", "PKCS12");
-		prop.put("org.apache.ws.security.crypto.merlin.keystore.password", _password);
+		prop.put("org.apache.ws.security.crypto.merlin.keystore.password", _credentials.getPKCS12Password());
 
 	    Merlin crypto = new Merlin(prop);
 
 	    WSSecSignature sign = new WSSecSignature();
-	    sign.setUserInfo(_alias, _password);
+	    sign.setUserInfo(_credentials.getPKCS12Alias(), _credentials.getPKCS12Password());
 	    sign.setDigestAlgo(DigestMethod.SHA1);
 	    
 	    Document doc = soapEnvelope.getOwnerDocument();

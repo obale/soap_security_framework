@@ -20,14 +20,14 @@
 
 package to.networld.soap.security.examples;
 
-import java.net.URL;
+//import java.net.URL;
 import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPConnection;
-import javax.xml.soap.SOAPConnectionFactory;
+//import javax.xml.soap.SOAPConnection;
+//import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;

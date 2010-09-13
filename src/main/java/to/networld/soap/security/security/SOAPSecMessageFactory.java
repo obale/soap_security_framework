@@ -61,7 +61,7 @@ public abstract class SOAPSecMessageFactory {
 	 * @throws KeyStoreException 
 	 */
 	public static ISecSOAPMessage newInstance(int _expiresInMinutes) throws SOAPException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, CredentialException, IOException, CertificateException, KeyStoreException {
-	    SOAPMessage soapMessage = MessageFactory.newInstance().createMessage();
+		SOAPMessage soapMessage = MessageFactory.newInstance().createMessage();
 	    SOAPPart soapPart = soapMessage.getSOAPPart();
 	    SOAPBody soapBody = soapMessage.getSOAPBody();
 	    SOAPHeader soapHeader = soapMessage.getSOAPHeader();
@@ -82,11 +82,11 @@ public abstract class SOAPSecMessageFactory {
         SOAPElement timestampElement = secElement.addChildElement(soapEnvelope.createQName("Timestamp", "wsu"));
         timestampElement.addAttribute(soapEnvelope.createQName("Id", "wsu"), UUID.randomUUID().toString());
         
-       Calendar currentDate = Calendar.getInstance();
-       timestampElement.addChildElement(soapEnvelope.createQName("Created", "wsu")).addTextNode(DateHandler.getDateString(currentDate, 0));
-       if ( _expiresInMinutes > 0 )
-    	   timestampElement.addChildElement(soapEnvelope.createQName("Expires", "wsu")).addTextNode(DateHandler.getDateString(currentDate, _expiresInMinutes));
-       timestampElement.addAttribute(soapEnvelope.createQName("id", "SOAP-SEC"), "Timestamp");
+        Calendar currentDate = Calendar.getInstance();
+        timestampElement.addChildElement(soapEnvelope.createQName("Created", "wsu")).addTextNode(DateHandler.getDateString(currentDate, 0));
+        if ( _expiresInMinutes > 0 )
+        	timestampElement.addChildElement(soapEnvelope.createQName("Expires", "wsu")).addTextNode(DateHandler.getDateString(currentDate, _expiresInMinutes));
+        timestampElement.addAttribute(soapEnvelope.createQName("id", "SOAP-SEC"), "Timestamp");
         
         /*
          * Body Part

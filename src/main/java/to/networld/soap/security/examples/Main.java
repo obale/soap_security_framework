@@ -27,6 +27,7 @@ import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import javax.security.cert.X509Certificate;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPElement;
@@ -38,8 +39,6 @@ import org.apache.ws.security.WSEncryptionPart;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import org.bouncycastle.jce.provider.*;
 
 import to.networld.soap.security.common.Credential;
 import to.networld.soap.security.interfaces.ICredential;
@@ -110,13 +109,15 @@ public class Main {
 		strbuffer.append("-----END CERTIFICATE-----");
 		System.out.println(strbuffer);
 
+		/*
 		Security.addProvider(new BouncyCastleProvider());
 		Provider provBC = Security.getProvider("BC");
 		CertificateFactory cf = CertificateFactory.getInstance("X.509", provBC);
+		 */
 		
 		ByteArrayInputStream isCert = new ByteArrayInputStream(strbuffer.toString().getBytes());
-//		System.out.println(X509Certificate.getInstance(isCert));
-		System.out.println(cf.generateCertificate(isCert));
+		System.out.println(X509Certificate.getInstance(isCert));
+//		System.out.println(cf.generateCertificate(isCert));
 		
 		
 		ISecSOAPMessage message = SOAPSecMessageFactory.newInstance(0);

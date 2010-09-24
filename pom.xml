@@ -23,7 +23,7 @@
         <modelVersion>4.0.0</modelVersion>
         <groupId>to.networld.soap.security</groupId>
         <artifactId>soap_security_framework</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.2</version>
         <packaging>jar</packaging>
         <name>Networld SOAP Security Framework</name>
         <description>Implements a security framework on the base of the SOAP and WS-Security specification.</description>

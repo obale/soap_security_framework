@@ -20,14 +20,15 @@
 
 package to.networld.soap.security.examples;
 
-//import java.net.URL;
+import java.io.ByteArrayInputStream;
+import java.security.Provider;
+import java.security.Security;
+import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
-//import javax.xml.soap.SOAPConnection;
-//import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -37,6 +38,8 @@ import org.apache.ws.security.WSEncryptionPart;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import org.bouncycastle.jce.provider.*;
 
 import to.networld.soap.security.common.Credential;
 import to.networld.soap.security.interfaces.ICredential;
@@ -94,6 +97,27 @@ public class Main {
 		
 		ICredential johnCredential = new Credential(pkcs12FileJohn, "johndoe", "johndoe", keystoreFile, pwd);
 		ICredential rootCredential = new Credential(pkcs12FileRoot, "rootca", "rootca", keystoreFile, pwd);
+		
+//		System.out.println(johnCredential.getBase64X509Certificate());
+//		System.out.println("----------------");
+//		System.out.println(rootCredential.getBase64X509Certificate());
+//		System.out.println("----------------");
+//		
+		StringBuffer strbuffer = new StringBuffer();
+		strbuffer.append("-----BEGIN CERTIFICATE-----\n");
+		strbuffer.append(johnCredential.getBase64X509Certificate().trim());
+		strbuffer.append("\n");
+		strbuffer.append("-----END CERTIFICATE-----");
+		System.out.println(strbuffer);
+
+		Security.addProvider(new BouncyCastleProvider());
+		Provider provBC = Security.getProvider("BC");
+		CertificateFactory cf = CertificateFactory.getInstance("X.509", provBC);
+		
+		ByteArrayInputStream isCert = new ByteArrayInputStream(strbuffer.toString().getBytes());
+//		System.out.println(X509Certificate.getInstance(isCert));
+		System.out.println(cf.generateCertificate(isCert));
+		
 		
 		ISecSOAPMessage message = SOAPSecMessageFactory.newInstance(0);
 		

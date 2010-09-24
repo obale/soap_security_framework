@@ -1,11 +1,15 @@
 package to.networld.soap.security.common;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+
+import org.apache.xml.security.utils.Base64;
 
 import to.networld.soap.security.interfaces.ICredential;
 import to.networld.soap.security.keystores.JKSKeyStore;
@@ -53,5 +57,26 @@ public class Credential implements ICredential {
 	 */
 	@Override
 	public KeyStore getPublicKeystore() { return this.keystore.getKeyStore(); }
+
+	/**
+	 * @throws KeyStoreException 
+	 * @throws IOException 
+	 * @throws CertificateException 
+	 * @throws NoSuchAlgorithmException 
+	 * @see to.networld.soap.security.interfaces.ICredential#getBase64X509Certificate()
+	 */
+	@Override
+	public String getBase64X509Certificate() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+		FileInputStream pkcs12File = new FileInputStream(this.pkcs12file);
+		try {
+			KeyStore keyStore = KeyStore.getInstance("PKCS12");
+			keyStore.load(pkcs12File, this.pkcs12password.toCharArray());
+			
+			Certificate x509Cert = keyStore.getCertificate(this.pkcs12alias);
+			return Base64.encode(x509Cert.getPublicKey().getEncoded());
+		} finally {
+			pkcs12File.close();
+		}
+	}
 
 }
